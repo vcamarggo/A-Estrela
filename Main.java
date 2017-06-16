@@ -1,7 +1,7 @@
 
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -84,18 +84,17 @@ class Main {
     private static PriorityQueue<No> estadosAbertos = new PriorityQueue<No>();
     private static HashSet<No> estadosFechados = new HashSet<>();
     // static short heuristica;
-    private final static short HEURISTICA = 5;
+    private final static short HEURISTICA = 3;
 
     public static void main(String[] args) throws FileNotFoundException {
-	// Scanner scan = new Scanner(new
-	// FileReader(Main.class.getResource("4.in").getPath()));
-	Scanner scan = new Scanner(System.in);
+	Scanner scan = new Scanner(new FileReader(Main.class.getResource("4.in").getPath()));
+	// Scanner scan = new Scanner(System.in);
 
 	// retirar comentario para testar variacoes heuristicas
 	// heuristica = scan.nextShort();
 
 	// retirar comentario para testar tempo em milissegundos
-	// long start = System.currentTimeMillis();
+	long start = System.currentTimeMillis();
 
 	try {
 	    No no = new No();
@@ -114,8 +113,7 @@ class Main {
 	}
 
 	System.out.println(aEstrela());
-	// System.out.println(TimeUnit.SECONDS.convert(System.currentTimeMillis()
-	// - start, TimeUnit.MILLISECONDS));
+	System.out.println(System.currentTimeMillis() - start);
     }
 
     private static short aEstrela() {
@@ -123,7 +121,7 @@ class Main {
 	Queue<No> sucessores = new PriorityQueue<>();
 	while (!estadosAbertos.isEmpty()) {
 
-	    no = Collections.min(estadosAbertos, (n1, n2) -> n1.getFuncaoF().compareTo(n2.getFuncaoF()));
+	    no = estadosAbertos.poll();
 	    estadosAbertos.remove(no);
 	    estadosFechados.add(no);
 
@@ -153,7 +151,7 @@ class Main {
 		    suc.setFuncaoF((short) (suc.getPassos() + suc.getFuncaoHLinha()));
 		    estadosAbertos.add(suc);
 		}
-		sucessores.peek();
+		System.out.println(no.getFuncaoHLinha());
 	    }
 	}
 	return 0;
