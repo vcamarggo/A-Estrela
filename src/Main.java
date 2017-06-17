@@ -1,8 +1,7 @@
 
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Scanner;
@@ -20,9 +19,9 @@ class Main {
 	private short[][] matrizResolucao = new short[4][4];
 	private No pai;
 	private int funcaoHLinha;
-	private int funcaoG;
 	private int funcaoF;
 	private short passos = 0;
+	private String hash = null;
 
 	public short[][] getMatrizResolucao() {
 	    return matrizResolucao;
@@ -44,14 +43,6 @@ class Main {
 	    this.funcaoHLinha = funcaoHLinha;
 	}
 
-	public int getFuncaoG() {
-	    return funcaoG;
-	}
-
-	public void setFuncaoG(int funcaoG) {
-	    this.funcaoG = funcaoG;
-	}
-
 	public Integer getFuncaoF() {
 	    return funcaoF;
 	}
@@ -68,13 +59,29 @@ class Main {
 	    this.funcaoF = funcaoF;
 	}
 
-	public int compareToMatrix(No o) {
-	    return (Arrays.deepEquals(getMatrizResolucao(), o.getMatrizResolucao()) ? 0 : 1);
-	}
+	// @Override
+	// public int compareTo(No o) {
+	// return hash.equals(o.getHash()) ? 0 : this.funcaoF - o.getFuncaoF();
+	// }
 
-	@Override
 	public int compareTo(No o) {
 	    return this.funcaoF - o.getFuncaoF();
+	}
+
+	void setHash() {
+	    String key = "";
+	    for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+		    if (matrizResolucao[i][j] < 7)
+			key += "0";
+		    key += String.valueOf(matrizResolucao[i][j]);
+		}
+	    }
+	    this.hash = key;
+	}
+
+	public String getHash() {
+	    return hash;
 	}
 
     }
@@ -82,16 +89,13 @@ class Main {
     private static short[][] solucao = new short[][] { { 1, 5, 9, 13 }, { 2, 6, 10, 14 }, { 3, 7, 11, 15 },
 	    { 4, 8, 12, 0 } };
     private static PriorityQueue<No> estadosAbertos = new PriorityQueue<No>();
-    private static HashSet<No> estadosFechados = new HashSet<>();
-    // static short heuristica;
+    private static HashMap<String, No> estadosFechados = new HashMap<String, No>();
     private final static short HEURISTICA = 3;
 
     public static void main(String[] args) throws FileNotFoundException {
-	Scanner scan = new Scanner(new FileReader(Main.class.getResource("4.in").getPath()));
-	// Scanner scan = new Scanner(System.in);
-
-	// retirar comentario para testar variacoes heuristicas
-	// heuristica = scan.nextShort();
+	// Scanner scan = new Scanner(new
+	// FileReader(Main.class.getResource("5.in").getPath()));
+	Scanner scan = new Scanner(System.in);
 
 	// retirar comentario para testar tempo em milissegundos
 	long start = System.currentTimeMillis();
@@ -105,6 +109,7 @@ class Main {
 		}
 	    }
 	    no.setFuncaoHLinha(calculaHlinha(no, HEURISTICA));
+	    no.setHash();
 	    scan.close();
 	    estadosAbertos.add(no);
 
@@ -122,17 +127,17 @@ class Main {
 	while (!estadosAbertos.isEmpty()) {
 
 	    no = estadosAbertos.poll();
-	    estadosAbertos.remove(no);
-	    estadosFechados.add(no);
+	    estadosFechados.put(no.hash, no);
 
 	    if (Arrays.deepEquals(no.getMatrizResolucao(), solucao)) {
 		return no.getPassos();
 	    }
+
 	    sucessores = geraSucessores(no);
 	    while (!sucessores.isEmpty()) {
 		No suc = sucessores.poll();
 
-		if (estadosFechados.contains(suc)) {
+		if (estadosFechados.containsKey(suc.getHash())) {
 		    if (suc.getPassos() < suc.getPai().getPassos()) {
 			estadosFechados.remove(suc.getPai());
 			suc.setFuncaoHLinha(calculaHlinha(suc, HEURISTICA));
@@ -151,7 +156,6 @@ class Main {
 		    suc.setFuncaoF((short) (suc.getPassos() + suc.getFuncaoHLinha()));
 		    estadosAbertos.add(suc);
 		}
-		System.out.println(no.getFuncaoHLinha());
 	    }
 	}
 	return 0;
@@ -174,6 +178,7 @@ class Main {
 			up.getMatrizResolucao()[i - 1][j] = aux;
 
 			up.setPai(no);
+			up.setHash();
 			sucessores.add(up);
 		    }
 		    if (i != 3) { // trocar com a peca de baixo
@@ -187,6 +192,7 @@ class Main {
 			down.getMatrizResolucao()[i][j] = down.getMatrizResolucao()[i + 1][j];
 			down.getMatrizResolucao()[i + 1][j] = aux;
 			down.setPai(no);
+			down.setHash();
 			sucessores.add(down);
 		    }
 		    if (j != 0) { // trocar com a peca da esquerda
@@ -200,6 +206,7 @@ class Main {
 			left.getMatrizResolucao()[i][j] = left.getMatrizResolucao()[i][j - 1];
 			left.getMatrizResolucao()[i][j - 1] = aux;
 			left.setPai(no);
+			left.setHash();
 			sucessores.add(left);
 		    }
 		    if (j != 3) { // trocar com a peca da direita
@@ -213,6 +220,7 @@ class Main {
 			right.getMatrizResolucao()[i][j] = right.getMatrizResolucao()[i][j + 1];
 			right.getMatrizResolucao()[i][j + 1] = aux;
 			right.setPai(no);
+			right.setHash();
 			sucessores.add(right);
 		    }
 		}
@@ -255,33 +263,17 @@ class Main {
 		for (int j = 0; j < 4; j++) {
 		    double valor = no.getMatrizResolucao()[i][j];
 		    if (valor != 0 && valor != solucao[i][j]) {
-			short objetivoI = (short) Math.abs(((4 * getFractionalPart(valor / 4)) - 1));
-			short objetivoJ = (short) (valor / 4.1);
-			float deslocamentoX = i - objetivoI;
-			float deslocamentoY = j - objetivoJ;
-			naPosicaoErrada += Math.abs(deslocamentoX) + Math.abs(deslocamentoY);
+			naPosicaoErrada += Math.abs(i - (short) Math.abs((4 * (valor / 4 - Math.floor(valor / 4)) - 1)))
+				+ Math.abs(j - (short) (valor / 4.1));
 		    }
 		}
 	    }
 	    return naPosicaoErrada;
-	case 5: // caso heuristica 3
+	case 5: // caso heuristica 5
 	    return Math.max(calculaHlinha(no, (short) 1),
 		    Math.max(calculaHlinha(no, (short) 2), calculaHlinha(no, (short) 3)));
 	default:
 	    return Integer.MAX_VALUE;
-	}
-    }
-
-    private static float getFractionalPart(double n) {
-	return (float) (n - Math.floor(n));
-    }
-
-    public static void printaMatrizAdjacencia(No no) {
-	for (short i = 0; i < 4; i++) {
-	    for (short j = 0; j < 4; j++) {
-		System.out.print(no.getMatrizResolucao()[i][j] + " ");
-	    }
-	    System.out.println("");
 	}
     }
 
