@@ -1,5 +1,6 @@
 
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.PriorityQueue;
@@ -72,8 +73,6 @@ class Main {
 	    String key = "";
 	    for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
-		    if (matrizResolucao[i][j] < 7)
-			key += "0";
 		    key += String.valueOf(matrizResolucao[i][j]);
 		}
 	    }
@@ -93,9 +92,8 @@ class Main {
     private final static short HEURISTICA = 3;
 
     public static void main(String[] args) throws FileNotFoundException {
-	// Scanner scan = new Scanner(new
-	// FileReader(Main.class.getResource("5.in").getPath()));
-	Scanner scan = new Scanner(System.in);
+	//Scanner scan = new Scanner(new FileReader(Main.class.getResource("4.in").getPath()));
+	 Scanner scan = new Scanner(System.in);
 
 	// retirar comentario para testar tempo em milissegundos
 	long start = System.currentTimeMillis();
@@ -269,6 +267,10 @@ class Main {
 		}
 	    }
 	    return naPosicaoErrada;
+	case 4: // caso heuristica 4
+
+	    return (int) (0.2D * calculaHlinha(no, (short) 1) + 0.1D * calculaHlinha(no, (short) 2)
+		    + 0.8D * calculaHlinha(no, (short) 3));
 	case 5: // caso heuristica 5
 	    return Math.max(calculaHlinha(no, (short) 1),
 		    Math.max(calculaHlinha(no, (short) 2), calculaHlinha(no, (short) 3)));
