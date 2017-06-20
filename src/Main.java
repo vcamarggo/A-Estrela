@@ -1,8 +1,7 @@
-
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Scanner;
@@ -15,25 +14,16 @@ import java.util.Scanner;
 
 class Main {
 
-    static class No implements Comparable<No> {
+    private static class No implements Comparable<No> {
 
 	private short[][] matrizResolucao = new short[4][4];
-	private No pai;
 	private int funcaoHLinha;
-	private int funcaoF;
-	private short passos = 0;
+	private long funcaoF;
+	private long passos = 0;
 	private String hash = null;
 
 	public short[][] getMatrizResolucao() {
 	    return matrizResolucao;
-	}
-
-	public No getPai() {
-	    return pai;
-	}
-
-	public void setPai(No pai) {
-	    this.pai = pai;
 	}
 
 	public int getFuncaoHLinha() {
@@ -44,15 +34,15 @@ class Main {
 	    this.funcaoHLinha = funcaoHLinha;
 	}
 
-	public Integer getFuncaoF() {
+	public Long getFuncaoF() {
 	    return funcaoF;
 	}
 
-	public short getPassos() {
+	public long getPassos() {
 	    return passos;
 	}
 
-	public void setPassos(short passos) {
+	public void setPassos(long passos) {
 	    this.passos = passos;
 	}
 
@@ -60,13 +50,8 @@ class Main {
 	    this.funcaoF = funcaoF;
 	}
 
-	// @Override
-	// public int compareTo(No o) {
-	// return hash.equals(o.getHash()) ? 0 : this.funcaoF - o.getFuncaoF();
-	// }
-
 	public int compareTo(No o) {
-	    return this.funcaoF - o.getFuncaoF();
+	    return (int) (this.funcaoF - o.getFuncaoF());
 	}
 
 	void setHash() {
@@ -90,13 +75,14 @@ class Main {
     private static PriorityQueue<No> estadosAbertos = new PriorityQueue<No>();
     private static HashMap<String, No> estadosFechados = new HashMap<String, No>();
     private final static short HEURISTICA = 3;
+    private static final String HASH_SOLUCAO = "1591326101437111548120";
 
     public static void main(String[] args) throws FileNotFoundException {
-	//Scanner scan = new Scanner(new FileReader(Main.class.getResource("4.in").getPath()));
+	//Scanner scan = new Scanner(new FileReader(Main.class.getResource("5.in").getPath()));
 	 Scanner scan = new Scanner(System.in);
 
 	// retirar comentario para testar tempo em milissegundos
-	long start = System.currentTimeMillis();
+	//long start = System.currentTimeMillis();
 
 	try {
 	    No no = new No();
@@ -116,10 +102,10 @@ class Main {
 	}
 
 	System.out.println(aEstrela());
-	System.out.println(System.currentTimeMillis() - start);
+	//System.out.println(System.currentTimeMillis() - start);
     }
 
-    private static short aEstrela() {
+    private static long aEstrela() {
 	No no = estadosAbertos.peek();
 	Queue<No> sucessores = new PriorityQueue<>();
 	while (!estadosAbertos.isEmpty()) {
@@ -127,7 +113,7 @@ class Main {
 	    no = estadosAbertos.poll();
 	    estadosFechados.put(no.hash, no);
 
-	    if (Arrays.deepEquals(no.getMatrizResolucao(), solucao)) {
+	    if (no.getHash().equals(HASH_SOLUCAO)) {
 		return no.getPassos();
 	    }
 
@@ -135,16 +121,19 @@ class Main {
 	    while (!sucessores.isEmpty()) {
 		No suc = sucessores.poll();
 
-		if (estadosFechados.containsKey(suc.getHash())) {
-		    if (suc.getPassos() < suc.getPai().getPassos()) {
-			estadosFechados.remove(suc.getPai());
+		No aberto = getNoAberto(suc.getHash(), suc.getPassos());
+		No fechado = estadosFechados.get(suc.getHash());
+
+		if (fechado != null) {
+		    if (suc.getPassos() < fechado.getPassos()) {
+			estadosFechados.remove(fechado);
 			suc.setFuncaoHLinha(calculaHlinha(suc, HEURISTICA));
 			suc.setFuncaoF((short) (suc.getPassos() + suc.getFuncaoHLinha()));
 			estadosAbertos.add(suc);
 		    }
-		} else if (estadosAbertos.contains(suc)) {
-		    if (suc.getPassos() < suc.getPai().getPassos()) {
-			estadosAbertos.remove(suc.getPai());
+		} else if (aberto != null) {
+		    if (suc.getPassos() < aberto.getPassos()) {
+			estadosAbertos.remove(aberto);
 			suc.setFuncaoHLinha(calculaHlinha(suc, HEURISTICA));
 			suc.setFuncaoF((short) (suc.getPassos() + suc.getFuncaoHLinha()));
 			estadosAbertos.add(suc);
@@ -157,6 +146,19 @@ class Main {
 	    }
 	}
 	return 0;
+    }
+
+    private static No getNoAberto(String hash, long passos) {
+	Iterator<No> iter = estadosAbertos.iterator();
+	while (iter.hasNext()) {
+	    No current = iter.next();
+	    if (current.getHash().equals(hash)) {
+		return current;
+	    } else if (current.getPassos() >= passos) {
+		break;
+	    }
+	}
+	return null;
     }
 
     private static Queue<No> geraSucessores(No no) {
@@ -175,7 +177,6 @@ class Main {
 			up.getMatrizResolucao()[i][j] = up.getMatrizResolucao()[i - 1][j];
 			up.getMatrizResolucao()[i - 1][j] = aux;
 
-			up.setPai(no);
 			up.setHash();
 			sucessores.add(up);
 		    }
@@ -189,7 +190,6 @@ class Main {
 			short aux = down.getMatrizResolucao()[i][j];
 			down.getMatrizResolucao()[i][j] = down.getMatrizResolucao()[i + 1][j];
 			down.getMatrizResolucao()[i + 1][j] = aux;
-			down.setPai(no);
 			down.setHash();
 			sucessores.add(down);
 		    }
@@ -203,7 +203,6 @@ class Main {
 			short aux = left.getMatrizResolucao()[i][j];
 			left.getMatrizResolucao()[i][j] = left.getMatrizResolucao()[i][j - 1];
 			left.getMatrizResolucao()[i][j - 1] = aux;
-			left.setPai(no);
 			left.setHash();
 			sucessores.add(left);
 		    }
@@ -217,7 +216,6 @@ class Main {
 			short aux = right.getMatrizResolucao()[i][j];
 			right.getMatrizResolucao()[i][j] = right.getMatrizResolucao()[i][j + 1];
 			right.getMatrizResolucao()[i][j + 1] = aux;
-			right.setPai(no);
 			right.setHash();
 			sucessores.add(right);
 		    }
