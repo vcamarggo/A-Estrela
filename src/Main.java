@@ -1,5 +1,4 @@
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.PriorityQueue;
@@ -14,7 +13,7 @@ import java.util.Scanner;
 
 class Main {
 
-    private static class No implements Comparable<No> {
+    private static class SolucaoPossivel implements Comparable<SolucaoPossivel> {
 
 	private short[][] matrizResolucao = new short[4][4];
 	private int funcaoHLinha;
@@ -50,7 +49,7 @@ class Main {
 	    this.funcaoF = funcaoF;
 	}
 
-	public int compareTo(No o) {
+	public int compareTo(SolucaoPossivel o) {
 	    return (int) (this.funcaoF - o.getFuncaoF());
 	}
 
@@ -70,59 +69,59 @@ class Main {
 
     }
 
-    private static short[][] solucao = new short[][] { { 1, 5, 9, 13 }, { 2, 6, 10, 14 }, { 3, 7, 11, 15 },
+    private static final short[][] SOLUCAO_FINAL = new short[][] { { 1, 5, 9, 13 }, { 2, 6, 10, 14 }, { 3, 7, 11, 15 },
 	    { 4, 8, 12, 0 } };
-    private static PriorityQueue<No> estadosAbertos = new PriorityQueue<No>();
-    private static HashMap<String, No> estadosFechados = new HashMap<String, No>();
+    private static PriorityQueue<SolucaoPossivel> estadosAbertos = new PriorityQueue<SolucaoPossivel>();
+    private static HashMap<String, SolucaoPossivel> estadosFechados = new HashMap<String, SolucaoPossivel>();
     private final static short HEURISTICA = 3;
     private static final String HASH_SOLUCAO = "1591326101437111548120";
 
     public static void main(String[] args) throws FileNotFoundException {
-	//Scanner scan = new Scanner(new FileReader(Main.class.getResource("5.in").getPath()));
+	//Scanner scan = new Scanner(new FileReader(Main.class.getResource("6.in").getPath()));
 	 Scanner scan = new Scanner(System.in);
 
 	// retirar comentario para testar tempo em milissegundos
-	//long start = System.currentTimeMillis();
+	long start = System.currentTimeMillis();
 
 	try {
-	    No no = new No();
+	    SolucaoPossivel solucaoPossivel= new SolucaoPossivel();
 	    for (short x = 0; x < 4; x++) {
 		for (short y = 0; y < 4; y++) {
 		    short numeroScaneado = scan.nextShort();
-		    no.getMatrizResolucao()[x][y] = numeroScaneado;
+		    solucaoPossivel.getMatrizResolucao()[x][y] = numeroScaneado;
 		}
 	    }
-	    no.setFuncaoHLinha(calculaHlinha(no, HEURISTICA));
-	    no.setHash();
+	    solucaoPossivel.setFuncaoHLinha(calculaHlinha(solucaoPossivel, HEURISTICA));
+	    solucaoPossivel.setHash();
 	    scan.close();
-	    estadosAbertos.add(no);
+	    estadosAbertos.add(solucaoPossivel);
 
 	} catch (Exception e) {
 	    e.printStackTrace();
 	}
 
 	System.out.println(aEstrela());
-	//System.out.println(System.currentTimeMillis() - start);
+	System.out.println(System.currentTimeMillis() - start);
     }
 
     private static long aEstrela() {
-	No no = estadosAbertos.peek();
-	Queue<No> sucessores = new PriorityQueue<>();
+	SolucaoPossivel solucaoPossivel= estadosAbertos.peek();
+	Queue<SolucaoPossivel> sucessores = new PriorityQueue<>();
 	while (!estadosAbertos.isEmpty()) {
 
-	    no = estadosAbertos.poll();
-	    estadosFechados.put(no.hash, no);
+	    solucaoPossivel= estadosAbertos.poll();
+	    estadosFechados.put(solucaoPossivel.getHash(), solucaoPossivel);
 
-	    if (no.getHash().equals(HASH_SOLUCAO)) {
-		return no.getPassos();
+	    if (solucaoPossivel.getHash().equals(HASH_SOLUCAO)) {
+		return solucaoPossivel.getPassos();
 	    }
 
-	    sucessores = geraSucessores(no);
+	    sucessores = geraSucessores(solucaoPossivel);
 	    while (!sucessores.isEmpty()) {
-		No suc = sucessores.poll();
+		SolucaoPossivel suc = sucessores.poll();
 
-		No aberto = getNoAberto(suc.getHash(), suc.getPassos());
-		No fechado = estadosFechados.get(suc.getHash());
+		SolucaoPossivel aberto = getNoAberto(suc.getHash(), suc.getPassos());
+		SolucaoPossivel fechado = estadosFechados.get(suc.getHash());
 
 		if (fechado != null) {
 		    if (suc.getPassos() < fechado.getPassos()) {
@@ -148,10 +147,10 @@ class Main {
 	return 0;
     }
 
-    private static No getNoAberto(String hash, long passos) {
-	Iterator<No> iter = estadosAbertos.iterator();
+    private static SolucaoPossivel getNoAberto(String hash, long passos) {
+	Iterator<SolucaoPossivel> iter = estadosAbertos.iterator();
 	while (iter.hasNext()) {
-	    No current = iter.next();
+	    SolucaoPossivel current = iter.next();
 	    if (current.getHash().equals(hash)) {
 		return current;
 	    } else if (current.getPassos() >= passos) {
@@ -161,16 +160,17 @@ class Main {
 	return null;
     }
 
-    private static Queue<No> geraSucessores(No no) {
-	Queue<No> sucessores = new PriorityQueue<>();
+    private static Queue<SolucaoPossivel> geraSucessores(SolucaoPossivel solucaoPossivel) {
+	Queue<SolucaoPossivel> sucessores = new PriorityQueue<>();
 	for (int i = 0; i < 4; i++) {
 	    for (int j = 0; j < 4; j++) {
-		if (no.getMatrizResolucao()[i][j] == 0) {
+		if (solucaoPossivel.getMatrizResolucao()[i][j] == 0) {
 		    if (i != 0) { // trocar com a peca de cima
-			No up = new No();
-			up.setPassos((short) (no.getPassos() + 1));
+			SolucaoPossivel up = new SolucaoPossivel();
+			
+			up.setPassos((short) (solucaoPossivel.getPassos() + 1));
 			for (int k = 0; k < 4; k++) {
-			    System.arraycopy(no.getMatrizResolucao()[k], 0, up.getMatrizResolucao()[k], 0, 4);
+			    System.arraycopy(solucaoPossivel.getMatrizResolucao()[k], 0, up.getMatrizResolucao()[k], 0, 4);
 			}
 
 			short aux = up.getMatrizResolucao()[i][j];
@@ -181,10 +181,10 @@ class Main {
 			sucessores.add(up);
 		    }
 		    if (i != 3) { // trocar com a peca de baixo
-			No down = new No();
-			down.setPassos((short) (no.getPassos() + 1));
+			SolucaoPossivel down = new SolucaoPossivel();
+			down.setPassos((short) (solucaoPossivel.getPassos() + 1));
 			for (int k = 0; k < 4; k++) {
-			    System.arraycopy(no.getMatrizResolucao()[k], 0, down.getMatrizResolucao()[k], 0, 4);
+			    System.arraycopy(solucaoPossivel.getMatrizResolucao()[k], 0, down.getMatrizResolucao()[k], 0, 4);
 			}
 
 			short aux = down.getMatrizResolucao()[i][j];
@@ -194,10 +194,10 @@ class Main {
 			sucessores.add(down);
 		    }
 		    if (j != 0) { // trocar com a peca da esquerda
-			No left = new No();
-			left.setPassos((short) (no.getPassos() + 1));
+			SolucaoPossivel left = new SolucaoPossivel();
+			left.setPassos((short) (solucaoPossivel.getPassos() + 1));
 			for (int k = 0; k < 4; k++) {
-			    System.arraycopy(no.getMatrizResolucao()[k], 0, left.getMatrizResolucao()[k], 0, 4);
+			    System.arraycopy(solucaoPossivel.getMatrizResolucao()[k], 0, left.getMatrizResolucao()[k], 0, 4);
 			}
 
 			short aux = left.getMatrizResolucao()[i][j];
@@ -207,10 +207,10 @@ class Main {
 			sucessores.add(left);
 		    }
 		    if (j != 3) { // trocar com a peca da direita
-			No right = new No();
-			right.setPassos((short) (no.getPassos() + 1));
+			SolucaoPossivel right = new SolucaoPossivel();
+			right.setPassos((short) (solucaoPossivel.getPassos() + 1));
 			for (int k = 0; k < 4; k++) {
-			    System.arraycopy(no.getMatrizResolucao()[k], 0, right.getMatrizResolucao()[k], 0, 4);
+			    System.arraycopy(solucaoPossivel.getMatrizResolucao()[k], 0, right.getMatrizResolucao()[k], 0, 4);
 			}
 
 			short aux = right.getMatrizResolucao()[i][j];
@@ -225,13 +225,13 @@ class Main {
 	return sucessores;
     }
 
-    private static int calculaHlinha(No no, short codigoHeuristica) {
+    private static int calculaHlinha(SolucaoPossivel solucaoPossivel, short codigoHeuristica) {
 	switch (codigoHeuristica) {
 	case 1: // caso heuristica 1
 	    short naPosicaoErrada = 0;
 	    for (short i = 0; i < 4; i++) {
 		for (short j = 0; j < 4; j++) {
-		    if (no.getMatrizResolucao()[i][j] != solucao[i][j])
+		    if (solucaoPossivel.getMatrizResolucao()[i][j] != SOLUCAO_FINAL[i][j])
 			naPosicaoErrada++;
 		}
 	    }
@@ -242,12 +242,12 @@ class Main {
 		for (short j = 0; j < 4; j++) {
 		    if (j == 3) {
 			if (i != 3) {
-			    if (no.getMatrizResolucao()[0][i + 1] != no.getMatrizResolucao()[j][i] + 1
-				    && no.getMatrizResolucao()[j][i] != 0)
+			    if (solucaoPossivel.getMatrizResolucao()[0][i + 1] != solucaoPossivel.getMatrizResolucao()[j][i] + 1
+				    && solucaoPossivel.getMatrizResolucao()[j][i] != 0)
 				naPosicaoErrada++;
 			}
-		    } else if (no.getMatrizResolucao()[j + 1][i] != no.getMatrizResolucao()[j][i] + 1
-			    && no.getMatrizResolucao()[j][i] != 0) {
+		    } else if (solucaoPossivel.getMatrizResolucao()[j + 1][i] != solucaoPossivel.getMatrizResolucao()[j][i] + 1
+			    && solucaoPossivel.getMatrizResolucao()[j][i] != 0) {
 			naPosicaoErrada++;
 		    }
 		}
@@ -257,8 +257,8 @@ class Main {
 	    naPosicaoErrada = 0;
 	    for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
-		    double valor = no.getMatrizResolucao()[i][j];
-		    if (valor != 0 && valor != solucao[i][j]) {
+		    double valor = solucaoPossivel.getMatrizResolucao()[i][j];
+		    if (valor != 0 && valor != SOLUCAO_FINAL[i][j]) {
 			naPosicaoErrada += Math.abs(i - (short) Math.abs((4 * (valor / 4 - Math.floor(valor / 4)) - 1)))
 				+ Math.abs(j - (short) (valor / 4.1));
 		    }
@@ -267,11 +267,11 @@ class Main {
 	    return naPosicaoErrada;
 	case 4: // caso heuristica 4
 
-	    return (int) (0.2D * calculaHlinha(no, (short) 1) + 0.1D * calculaHlinha(no, (short) 2)
-		    + 0.8D * calculaHlinha(no, (short) 3));
+	    return (int) (0.2D * calculaHlinha(solucaoPossivel, (short) 1) + 0.1D * calculaHlinha(solucaoPossivel, (short) 2)
+		    + 0.8D * calculaHlinha(solucaoPossivel, (short) 3));
 	case 5: // caso heuristica 5
-	    return Math.max(calculaHlinha(no, (short) 1),
-		    Math.max(calculaHlinha(no, (short) 2), calculaHlinha(no, (short) 3)));
+	    return Math.max(calculaHlinha(solucaoPossivel, (short) 1),
+		    Math.max(calculaHlinha(solucaoPossivel, (short) 2), calculaHlinha(solucaoPossivel, (short) 3)));
 	default:
 	    return Integer.MAX_VALUE;
 	}
