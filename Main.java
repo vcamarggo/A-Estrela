@@ -69,7 +69,7 @@ class Main {
 
     }
 
-    private static short[][] solucao = new short[][] { { 1, 5, 9, 13 }, { 2, 6, 10, 14 }, { 3, 7, 11, 15 },
+    private static final short[][] SOLUCAO_FINAL = new short[][] { { 1, 5, 9, 13 }, { 2, 6, 10, 14 }, { 3, 7, 11, 15 },
 	    { 4, 8, 12, 0 } };
     private static PriorityQueue<SolucaoPossivel> estadosAbertos = new PriorityQueue<SolucaoPossivel>();
     private static HashMap<String, SolucaoPossivel> estadosFechados = new HashMap<String, SolucaoPossivel>();
@@ -230,7 +230,7 @@ class Main {
 	    short naPosicaoErrada = 0;
 	    for (short i = 0; i < 4; i++) {
 		for (short j = 0; j < 4; j++) {
-		    if (solucaoPossivel.getMatrizResolucao()[i][j] != solucao[i][j])
+		    if (solucaoPossivel.getMatrizResolucao()[i][j] != SOLUCAO_FINAL[i][j])
 			naPosicaoErrada++;
 		}
 	    }
@@ -257,7 +257,7 @@ class Main {
 	    for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 		    double valor = solucaoPossivel.getMatrizResolucao()[i][j];
-		    if (valor != 0 && valor != solucao[i][j]) {
+		    if (valor != 0 && valor != SOLUCAO_FINAL[i][j]) {
 			naPosicaoErrada += Math.abs(i - (short) Math.abs((4 * (valor / 4 - Math.floor(valor / 4)) - 1)))
 				+ Math.abs(j - (short) (valor / 4.1));
 		    }
