@@ -20,6 +20,7 @@ class Main {
 	private long funcaoF;
 	private long passos = 0;
 	private String hash = null;
+	private SolucaoPossivel pai;
 
 	public short[][] getMatrizResolucao() {
 	    return matrizResolucao;
@@ -67,6 +68,14 @@ class Main {
 	    return hash;
 	}
 
+	public SolucaoPossivel getPai() {
+	    return pai;
+	}
+
+	public void setPai(SolucaoPossivel pai) {
+	    this.pai = pai;
+	}
+
     }
 
     private static final short[][] SOLUCAO_FINAL = new short[][] { { 1, 5, 9, 13 }, { 2, 6, 10, 14 }, { 3, 7, 11, 15 },
@@ -77,14 +86,15 @@ class Main {
     private static final String HASH_SOLUCAO = "1591326101437111548120";
 
     public static void main(String[] args) throws FileNotFoundException {
-	//Scanner scan = new Scanner(new FileReader(Main.class.getResource("6.in").getPath()));
-	 Scanner scan = new Scanner(System.in);
+	// Scanner scan = new Scanner(new
+	// FileReader(Main.class.getResource("6.in").getPath()));
+	Scanner scan = new Scanner(System.in);
 
 	// retirar comentario para testar tempo em milissegundos
-	long start = System.currentTimeMillis();
+	//long start = System.currentTimeMillis();
 
 	try {
-	    SolucaoPossivel solucaoPossivel= new SolucaoPossivel();
+	    SolucaoPossivel solucaoPossivel = new SolucaoPossivel();
 	    for (short x = 0; x < 4; x++) {
 		for (short y = 0; y < 4; y++) {
 		    short numeroScaneado = scan.nextShort();
@@ -101,15 +111,15 @@ class Main {
 	}
 
 	System.out.println(aEstrela());
-	System.out.println(System.currentTimeMillis() - start);
+	//System.out.println(System.currentTimeMillis() - start);
     }
 
     private static long aEstrela() {
-	SolucaoPossivel solucaoPossivel= estadosAbertos.peek();
+	SolucaoPossivel solucaoPossivel = estadosAbertos.peek();
 	Queue<SolucaoPossivel> sucessores = new PriorityQueue<>();
 	while (!estadosAbertos.isEmpty()) {
 
-	    solucaoPossivel= estadosAbertos.poll();
+	    solucaoPossivel = estadosAbertos.poll();
 	    estadosFechados.put(solucaoPossivel.getHash(), solucaoPossivel);
 
 	    if (solucaoPossivel.getHash().equals(HASH_SOLUCAO)) {
@@ -122,6 +132,10 @@ class Main {
 
 		SolucaoPossivel aberto = getNoAberto(suc.getHash(), suc.getPassos());
 		SolucaoPossivel fechado = estadosFechados.get(suc.getHash());
+
+		if (suc.getPai() != null && !estadosFechados.containsKey(suc.getPai().getHash())) {
+		    continue;
+		}
 
 		if (fechado != null) {
 		    if (suc.getPassos() < fechado.getPassos()) {
@@ -167,10 +181,11 @@ class Main {
 		if (solucaoPossivel.getMatrizResolucao()[i][j] == 0) {
 		    if (i != 0) { // trocar com a peca de cima
 			SolucaoPossivel up = new SolucaoPossivel();
-			
+			up.setPai(solucaoPossivel);
 			up.setPassos((short) (solucaoPossivel.getPassos() + 1));
 			for (int k = 0; k < 4; k++) {
-			    System.arraycopy(solucaoPossivel.getMatrizResolucao()[k], 0, up.getMatrizResolucao()[k], 0, 4);
+			    System.arraycopy(solucaoPossivel.getMatrizResolucao()[k], 0, up.getMatrizResolucao()[k], 0,
+				    4);
 			}
 
 			short aux = up.getMatrizResolucao()[i][j];
@@ -182,9 +197,11 @@ class Main {
 		    }
 		    if (i != 3) { // trocar com a peca de baixo
 			SolucaoPossivel down = new SolucaoPossivel();
+			down.setPai(solucaoPossivel);
 			down.setPassos((short) (solucaoPossivel.getPassos() + 1));
 			for (int k = 0; k < 4; k++) {
-			    System.arraycopy(solucaoPossivel.getMatrizResolucao()[k], 0, down.getMatrizResolucao()[k], 0, 4);
+			    System.arraycopy(solucaoPossivel.getMatrizResolucao()[k], 0, down.getMatrizResolucao()[k],
+				    0, 4);
 			}
 
 			short aux = down.getMatrizResolucao()[i][j];
@@ -195,9 +212,11 @@ class Main {
 		    }
 		    if (j != 0) { // trocar com a peca da esquerda
 			SolucaoPossivel left = new SolucaoPossivel();
+			left.setPai(solucaoPossivel);
 			left.setPassos((short) (solucaoPossivel.getPassos() + 1));
 			for (int k = 0; k < 4; k++) {
-			    System.arraycopy(solucaoPossivel.getMatrizResolucao()[k], 0, left.getMatrizResolucao()[k], 0, 4);
+			    System.arraycopy(solucaoPossivel.getMatrizResolucao()[k], 0, left.getMatrizResolucao()[k],
+				    0, 4);
 			}
 
 			short aux = left.getMatrizResolucao()[i][j];
@@ -208,9 +227,11 @@ class Main {
 		    }
 		    if (j != 3) { // trocar com a peca da direita
 			SolucaoPossivel right = new SolucaoPossivel();
+			right.setPai(solucaoPossivel);
 			right.setPassos((short) (solucaoPossivel.getPassos() + 1));
 			for (int k = 0; k < 4; k++) {
-			    System.arraycopy(solucaoPossivel.getMatrizResolucao()[k], 0, right.getMatrizResolucao()[k], 0, 4);
+			    System.arraycopy(solucaoPossivel.getMatrizResolucao()[k], 0, right.getMatrizResolucao()[k],
+				    0, 4);
 			}
 
 			short aux = right.getMatrizResolucao()[i][j];
@@ -242,11 +263,13 @@ class Main {
 		for (short j = 0; j < 4; j++) {
 		    if (j == 3) {
 			if (i != 3) {
-			    if (solucaoPossivel.getMatrizResolucao()[0][i + 1] != solucaoPossivel.getMatrizResolucao()[j][i] + 1
+			    if (solucaoPossivel.getMatrizResolucao()[0][i
+				    + 1] != solucaoPossivel.getMatrizResolucao()[j][i] + 1
 				    && solucaoPossivel.getMatrizResolucao()[j][i] != 0)
 				naPosicaoErrada++;
 			}
-		    } else if (solucaoPossivel.getMatrizResolucao()[j + 1][i] != solucaoPossivel.getMatrizResolucao()[j][i] + 1
+		    } else if (solucaoPossivel.getMatrizResolucao()[j
+			    + 1][i] != solucaoPossivel.getMatrizResolucao()[j][i] + 1
 			    && solucaoPossivel.getMatrizResolucao()[j][i] != 0) {
 			naPosicaoErrada++;
 		    }
@@ -267,7 +290,8 @@ class Main {
 	    return naPosicaoErrada;
 	case 4: // caso heuristica 4
 
-	    return (int) (0.2D * calculaHlinha(solucaoPossivel, (short) 1) + 0.1D * calculaHlinha(solucaoPossivel, (short) 2)
+	    return (int) (0.2D * calculaHlinha(solucaoPossivel, (short) 1)
+		    + 0.1D * calculaHlinha(solucaoPossivel, (short) 2)
 		    + 0.8D * calculaHlinha(solucaoPossivel, (short) 3));
 	case 5: // caso heuristica 5
 	    return Math.max(calculaHlinha(solucaoPossivel, (short) 1),
