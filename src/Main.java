@@ -91,7 +91,7 @@ class Main {
 	Scanner scan = new Scanner(System.in);
 
 	// retirar comentario para testar tempo em milissegundos
-	//long start = System.currentTimeMillis();
+	long start = System.currentTimeMillis();
 
 	try {
 	    SolucaoPossivel solucaoPossivel = new SolucaoPossivel();
@@ -111,7 +111,7 @@ class Main {
 	}
 
 	System.out.println(aEstrela());
-	//System.out.println(System.currentTimeMillis() - start);
+	System.out.println(System.currentTimeMillis() - start);
     }
 
     private static long aEstrela() {
@@ -132,7 +132,7 @@ class Main {
 
 		SolucaoPossivel aberto = getNoAberto(suc.getHash(), suc.getPassos());
 		SolucaoPossivel fechado = estadosFechados.get(suc.getHash());
-
+		
 		if (suc.getPai() != null && !estadosFechados.containsKey(suc.getPai().getHash())) {
 		    continue;
 		}
