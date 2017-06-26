@@ -132,7 +132,7 @@ class Main {
 
 		SolucaoPossivel aberto = getNoAberto(suc.getHash(), suc.getPassos());
 		SolucaoPossivel fechado = estadosFechados.get(suc.getHash());
-		
+
 		if (suc.getPai() != null && !estadosFechados.containsKey(suc.getPai().getHash())) {
 		    continue;
 		}
@@ -289,13 +289,14 @@ class Main {
 	    }
 	    return naPosicaoErrada;
 	case 4: // caso heuristica 4
-
 	    return (int) (0.2D * calculaHlinha(solucaoPossivel, (short) 1)
 		    + 0.1D * calculaHlinha(solucaoPossivel, (short) 2)
 		    + 0.8D * calculaHlinha(solucaoPossivel, (short) 3));
 	case 5: // caso heuristica 5
 	    return Math.max(calculaHlinha(solucaoPossivel, (short) 1),
 		    Math.max(calculaHlinha(solucaoPossivel, (short) 2), calculaHlinha(solucaoPossivel, (short) 3)));
+	case 6: // caso heuristica 6
+	    return Math.max(calculaHlinha(solucaoPossivel, (short) 1), calculaHlinha(solucaoPossivel, (short) 3));
 	default:
 	    return Integer.MAX_VALUE;
 	}
