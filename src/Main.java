@@ -1,9 +1,7 @@
 import java.io.FileNotFoundException;
-import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.Scanner;
 import java.util.TreeSet;
 
@@ -109,17 +107,17 @@ class Main {
 	    e.printStackTrace();
 	}
 
-	// System.out.println(aEstrela());
+	 System.out.println(aEstrela());
 
-	System.out.println("Passos: " + aEstrela());
-	System.out.println("Segundos: " + (System.currentTimeMillis() - start));
+	/*System.out.println("Passos: " + aEstrela());
+	System.out.println("Millisegundos: " + (System.currentTimeMillis() - start));
 	System.out.println("Memoria Usada: "
-		+ new DecimalFormat("#.##").format(((double) Runtime.getRuntime().totalMemory() / 1073741824)) + "Gb");
+		+ new DecimalFormat("#.##").format(((double) Runtime.getRuntime().totalMemory() / 1073741824)) + "Gb");*/
     }
 
     private static long aEstrela() {
 	SolucaoPossivel solucaoPossivel = null;
-	Queue<SolucaoPossivel> sucessores = new PriorityQueue<>();
+	ArrayList<SolucaoPossivel> sucessores = new ArrayList<>();
 	while (!estadosAbertos.isEmpty()) {
 
 	    solucaoPossivel = estadosAbertos.first();
@@ -133,7 +131,8 @@ class Main {
 	    sucessores = geraSucessores(solucaoPossivel);
 
 	    while (!sucessores.isEmpty()) {
-		SolucaoPossivel suc = sucessores.poll();
+		SolucaoPossivel suc = sucessores.get(0);
+		sucessores.remove(suc);
 
 		SolucaoPossivel aberto = getNoAberto(suc.getHash(), suc.getPassos());
 		SolucaoPossivel fechado = estadosFechados.get(suc.getHash());
@@ -175,8 +174,8 @@ class Main {
 	return null;
     }
 
-    private static Queue<SolucaoPossivel> geraSucessores(SolucaoPossivel solucaoPossivel) {
-	Queue<SolucaoPossivel> sucessores = new PriorityQueue<>();
+    private static ArrayList<SolucaoPossivel> geraSucessores(SolucaoPossivel solucaoPossivel) {
+	ArrayList<SolucaoPossivel> sucessores = new ArrayList<SolucaoPossivel>();
 	for (int i = 0; i < 4; i++) {
 	    for (int j = 0; j < 4; j++) {
 		if (solucaoPossivel.getMatrizResolucao()[i][j] == 0) {
