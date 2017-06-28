@@ -1,4 +1,5 @@
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,6 +20,8 @@ class Main {
 	private int funcaoHLinha;
 	private long funcaoF;
 	private int passos = 0;
+	private int deOndeVeio = 0; // 1 cima; -1 baixo; -2 direita; 2 esquerda;
+	private SolucaoPossivel pai;
 	private String hash = null;
 
 	public short[][] getMatrizResolucao() {
@@ -73,6 +76,22 @@ class Main {
 	    return hash;
 	}
 
+	public SolucaoPossivel getPai() {
+	    return pai;
+	}
+
+	public void setPai(SolucaoPossivel pai) {
+	    this.pai = pai;
+	}
+
+	public int getDeOndeVeio() {
+	    return deOndeVeio;
+	}
+
+	public void setDeOndeVeio(int deOndeVeio) {
+	    this.deOndeVeio = deOndeVeio;
+	}
+
     }
 
     private static final short[][] SOLUCAO_FINAL = new short[][] { { 1, 5, 9, 13 }, { 2, 6, 10, 14 }, { 3, 7, 11, 15 },
@@ -83,12 +102,10 @@ class Main {
     private static final String HASH_SOLUCAO = "1591326101437111548120";
 
     public static void main(String[] args) throws FileNotFoundException {
-	// Scanner scan = new Scanner(new
-	// FileReader(Main.class.getResource("r7.in").getPath()));
-	Scanner scan = new Scanner(System.in);
+	Scanner scan = new Scanner(new FileReader(Main.class.getResource("r7.in").getPath()));
+	// Scanner scan = new Scanner(System.in);
 
-	// retirar comentario para testar tempo em milissegundos
-	long start = System.currentTimeMillis();
+	// long start = System.currentTimeMillis();
 
 	try {
 	    SolucaoPossivel solucaoPossivel = new SolucaoPossivel();
@@ -107,12 +124,15 @@ class Main {
 	    e.printStackTrace();
 	}
 
-	 System.out.println(aEstrela());
+	System.out.println(aEstrela());
 
-	/*System.out.println("Passos: " + aEstrela());
-	System.out.println("Millisegundos: " + (System.currentTimeMillis() - start));
-	System.out.println("Memoria Usada: "
-		+ new DecimalFormat("#.##").format(((double) Runtime.getRuntime().totalMemory() / 1073741824)) + "Gb");*/
+	// System.out.println("Passos: " + aEstrela());
+	// System.out.println("Millisegundos: " + (System.currentTimeMillis() -
+	// start));
+	// System.out.println("Memoria Usada: "
+	// + new DecimalFormat("#.##").format(((double)
+	// Runtime.getRuntime().totalMemory() / 1073741824)) + "Gb");
+
     }
 
     private static long aEstrela() {
@@ -126,6 +146,7 @@ class Main {
 	    if (solucaoPossivel.getHash().equals(HASH_SOLUCAO)) {
 		return solucaoPossivel.getPassos();
 	    }
+
 	    estadosFechados.put(solucaoPossivel.getHash(), solucaoPossivel);
 
 	    sucessores = geraSucessores(solucaoPossivel);
@@ -159,6 +180,7 @@ class Main {
 	    }
 	}
 	return 0;
+
     }
 
     private static SolucaoPossivel getNoAberto(String hash, long passos) {
@@ -179,7 +201,7 @@ class Main {
 	for (int i = 0; i < 4; i++) {
 	    for (int j = 0; j < 4; j++) {
 		if (solucaoPossivel.getMatrizResolucao()[i][j] == 0) {
-		    if (i != 0) { // trocar com a peca de cima
+		    if (i != 0 && (solucaoPossivel.getPai() == null || solucaoPossivel.getDeOndeVeio() != -1)) {
 			SolucaoPossivel up = new SolucaoPossivel();
 			up.setPassos((short) (solucaoPossivel.getPassos() + 1));
 			for (int k = 0; k < 4; k++) {
@@ -192,9 +214,11 @@ class Main {
 			up.getMatrizResolucao()[i - 1][j] = aux;
 
 			up.setHash();
+			up.setPai(solucaoPossivel);
+			up.setDeOndeVeio(1);
 			sucessores.add(up);
 		    }
-		    if (i != 3) { // trocar com a peca de baixo
+		    if (i != 3 && (solucaoPossivel.getPai() == null || solucaoPossivel.getDeOndeVeio() != 1)) {
 			SolucaoPossivel down = new SolucaoPossivel();
 			down.setPassos((short) (solucaoPossivel.getPassos() + 1));
 			for (int k = 0; k < 4; k++) {
@@ -206,9 +230,11 @@ class Main {
 			down.getMatrizResolucao()[i][j] = down.getMatrizResolucao()[i + 1][j];
 			down.getMatrizResolucao()[i + 1][j] = aux;
 			down.setHash();
+			down.setPai(solucaoPossivel);
+			down.setDeOndeVeio(-1);
 			sucessores.add(down);
 		    }
-		    if (j != 0) { // trocar com a peca da esquerda
+		    if (j != 0 && (solucaoPossivel.getPai() == null || solucaoPossivel.getDeOndeVeio() != -2)) {
 			SolucaoPossivel left = new SolucaoPossivel();
 			left.setPassos((short) (solucaoPossivel.getPassos() + 1));
 			for (int k = 0; k < 4; k++) {
@@ -220,9 +246,11 @@ class Main {
 			left.getMatrizResolucao()[i][j] = left.getMatrizResolucao()[i][j - 1];
 			left.getMatrizResolucao()[i][j - 1] = aux;
 			left.setHash();
+			left.setPai(solucaoPossivel);
+			left.setDeOndeVeio(2);
 			sucessores.add(left);
 		    }
-		    if (j != 3) { // trocar com a peca da direita
+		    if (j != 3 && (solucaoPossivel.getPai() == null || solucaoPossivel.getDeOndeVeio() != 2)) {
 			SolucaoPossivel right = new SolucaoPossivel();
 			right.setPassos((short) (solucaoPossivel.getPassos() + 1));
 			for (int k = 0; k < 4; k++) {
@@ -234,6 +262,8 @@ class Main {
 			right.getMatrizResolucao()[i][j] = right.getMatrizResolucao()[i][j + 1];
 			right.getMatrizResolucao()[i][j + 1] = aux;
 			right.setHash();
+			right.setPai(solucaoPossivel);
+			right.setDeOndeVeio(-2);
 			sucessores.add(right);
 		    }
 		}
