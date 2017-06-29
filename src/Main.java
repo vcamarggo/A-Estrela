@@ -1,8 +1,6 @@
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Scanner;
 import java.util.TreeSet;
 
@@ -53,7 +51,7 @@ class Main {
 	}
 
 	public int compareTo(SolucaoPossivel o) {
-	    if (this.hashCode() == o.hashCode()) {
+	    if (this.hash == o.getHash()) {
 		return 0;
 	    }
 	    if (funcaoF == o.getFuncaoF()) {
@@ -102,10 +100,11 @@ class Main {
     private static final String HASH_SOLUCAO = "1591326101437111548120";
 
     public static void main(String[] args) throws FileNotFoundException {
-	Scanner scan = new Scanner(new FileReader(Main.class.getResource("r7.in").getPath()));
-	// Scanner scan = new Scanner(System.in);
+	// Scanner scan = new Scanner(new
+	// FileReader(Main.class.getResource("r7.in").getPath()));
+	Scanner scan = new Scanner(System.in);
 
-	// long start = System.currentTimeMillis();
+	//long start = System.currentTimeMillis();
 
 	try {
 	    SolucaoPossivel solucaoPossivel = new SolucaoPossivel();
@@ -124,14 +123,13 @@ class Main {
 	    e.printStackTrace();
 	}
 
-	System.out.println(aEstrela());
+	 System.out.println(aEstrela());
 
 	// System.out.println("Passos: " + aEstrela());
 	// System.out.println("Millisegundos: " + (System.currentTimeMillis() -
 	// start));
 	// System.out.println("Memoria Usada: "
-	// + new DecimalFormat("#.##").format(((double)
-	// Runtime.getRuntime().totalMemory() / 1073741824)) + "Gb");
+	//	+ new DecimalFormat("#.##").format(((double) Runtime.getRuntime().totalMemory() / 1073741824)) + "Gb");
 
     }
 
@@ -155,7 +153,7 @@ class Main {
 		SolucaoPossivel suc = sucessores.get(0);
 		sucessores.remove(suc);
 
-		SolucaoPossivel aberto = getNoAberto(suc.getHash(), suc.getPassos());
+		SolucaoPossivel aberto = estadosAbertos.lower(suc);
 		SolucaoPossivel fechado = estadosFechados.get(suc.getHash());
 
 		if (fechado != null) {
@@ -181,19 +179,6 @@ class Main {
 	}
 	return 0;
 
-    }
-
-    private static SolucaoPossivel getNoAberto(String hash, long passos) {
-	Iterator<SolucaoPossivel> iter = estadosAbertos.iterator();
-	while (iter.hasNext()) {
-	    SolucaoPossivel current = iter.next();
-	    if (current.getHash().equals(hash)) {
-		return current;
-	    } else if (current.getPassos() >= passos) {
-		break;
-	    }
-	}
-	return null;
     }
 
     private static ArrayList<SolucaoPossivel> geraSucessores(SolucaoPossivel solucaoPossivel) {
