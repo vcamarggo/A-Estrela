@@ -1,4 +1,4 @@
-import java.io.FileNotFoundException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -99,12 +99,10 @@ class Main {
     private final static short HEURISTICA = 3;
     private static final String HASH_SOLUCAO = "1591326101437111548120";
 
-    public static void main(String[] args) throws FileNotFoundException {
-	// Scanner scan = new Scanner(new
-	// FileReader(Main.class.getResource("r7.in").getPath()));
+    public static void main(String[] args) {
 	Scanner scan = new Scanner(System.in);
 
-	//long start = System.currentTimeMillis();
+	long start = System.currentTimeMillis();
 
 	try {
 	    SolucaoPossivel solucaoPossivel = new SolucaoPossivel();
@@ -123,13 +121,13 @@ class Main {
 	    e.printStackTrace();
 	}
 
-	 System.out.println(aEstrela());
+	 //System.out.println(aEstrela());
 
-	// System.out.println("Passos: " + aEstrela());
-	// System.out.println("Millisegundos: " + (System.currentTimeMillis() -
-	// start));
-	// System.out.println("Memoria Usada: "
-	//	+ new DecimalFormat("#.##").format(((double) Runtime.getRuntime().totalMemory() / 1073741824)) + "Gb");
+	 System.out.println("Passos: " + aEstrela());
+	 System.out.println("Millisegundos: " + (System.currentTimeMillis() -
+	 start));
+	 System.out.println("Memoria Usada: "
+		+ new DecimalFormat("#.##").format(((double) (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1048576)) + "Mb");
 
     }
 

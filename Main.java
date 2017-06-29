@@ -1,9 +1,9 @@
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.Scanner;
+import java.util.TreeSet;
 
 /**
  * @author V.Camargo
@@ -18,7 +18,7 @@ class Main {
 	private short[][] matrizResolucao = new short[4][4];
 	private int funcaoHLinha;
 	private long funcaoF;
-	private long passos = 0;
+	private int passos = 0;
 	private String hash = null;
 
 	public short[][] getMatrizResolucao() {
@@ -37,11 +37,11 @@ class Main {
 	    return funcaoF;
 	}
 
-	public long getPassos() {
+	public int getPassos() {
 	    return passos;
 	}
 
-	public void setPassos(long passos) {
+	public void setPassos(int passos) {
 	    this.passos = passos;
 	}
 
@@ -50,7 +50,13 @@ class Main {
 	}
 
 	public int compareTo(SolucaoPossivel o) {
-	    return (int) (this.funcaoF - o.getFuncaoF());
+	    if (this.hashCode() == o.hashCode()) {
+		return 0;
+	    }
+	    if (funcaoF == o.getFuncaoF()) {
+		return -1;
+	    }
+	    return (int) (funcaoF - o.getFuncaoF());
 	}
 
 	void setHash() {
@@ -71,17 +77,18 @@ class Main {
 
     private static final short[][] SOLUCAO_FINAL = new short[][] { { 1, 5, 9, 13 }, { 2, 6, 10, 14 }, { 3, 7, 11, 15 },
 	    { 4, 8, 12, 0 } };
-    private static PriorityQueue<SolucaoPossivel> estadosAbertos = new PriorityQueue<SolucaoPossivel>();
+    private static TreeSet<SolucaoPossivel> estadosAbertos = new TreeSet<SolucaoPossivel>();
     private static HashMap<String, SolucaoPossivel> estadosFechados = new HashMap<String, SolucaoPossivel>();
     private final static short HEURISTICA = 3;
     private static final String HASH_SOLUCAO = "1591326101437111548120";
 
     public static void main(String[] args) throws FileNotFoundException {
-	//Scanner scan = new Scanner(new FileReader(Main.class.getResource("5.in").getPath()));
-	 Scanner scan = new Scanner(System.in);
+	// Scanner scan = new Scanner(new
+	// FileReader(Main.class.getResource("r7.in").getPath()));
+	Scanner scan = new Scanner(System.in);
 
 	// retirar comentario para testar tempo em milissegundos
-	//long start = System.currentTimeMillis();
+	long start = System.currentTimeMillis();
 
 	try {
 	    SolucaoPossivel solucaoPossivel = new SolucaoPossivel();
@@ -100,27 +107,34 @@ class Main {
 	    e.printStackTrace();
 	}
 
-	System.out.println(aEstrela());
-	//System.out.println(System.currentTimeMillis() - start);
+	 System.out.println(aEstrela());
+
+	/*System.out.println("Passos: " + aEstrela());
+	System.out.println("Millisegundos: " + (System.currentTimeMillis() - start));
+	System.out.println("Memoria Usada: "
+		+ new DecimalFormat("#.##").format(((double) Runtime.getRuntime().totalMemory() / 1073741824)) + "Gb");*/
     }
 
     private static long aEstrela() {
-	SolucaoPossivel solucaoPossivel = estadosAbertos.peek();
-	Queue<SolucaoPossivel> sucessores = new PriorityQueue<>();
+	SolucaoPossivel solucaoPossivel = null;
+	ArrayList<SolucaoPossivel> sucessores = new ArrayList<>();
 	while (!estadosAbertos.isEmpty()) {
 
-	    solucaoPossivel = estadosAbertos.poll();
-	    estadosFechados.put(solucaoPossivel.hash, solucaoPossivel);
+	    solucaoPossivel = estadosAbertos.first();
+	    estadosAbertos.remove(solucaoPossivel);
 
 	    if (solucaoPossivel.getHash().equals(HASH_SOLUCAO)) {
 		return solucaoPossivel.getPassos();
 	    }
+	    estadosFechados.put(solucaoPossivel.getHash(), solucaoPossivel);
 
 	    sucessores = geraSucessores(solucaoPossivel);
-	    while (!sucessores.isEmpty()) {
-		SolucaoPossivel suc = sucessores.poll();
 
-		SolucaoPossivel aberto = getSolucaoPossivelAberto(suc.getHash(), suc.getPassos());
+	    while (!sucessores.isEmpty()) {
+		SolucaoPossivel suc = sucessores.get(0);
+		sucessores.remove(suc);
+
+		SolucaoPossivel aberto = getNoAberto(suc.getHash(), suc.getPassos());
 		SolucaoPossivel fechado = estadosFechados.get(suc.getHash());
 
 		if (fechado != null) {
@@ -147,7 +161,7 @@ class Main {
 	return 0;
     }
 
-    private static SolucaoPossivel getSolucaoPossivelAberto(String hash, long passos) {
+    private static SolucaoPossivel getNoAberto(String hash, long passos) {
 	Iterator<SolucaoPossivel> iter = estadosAbertos.iterator();
 	while (iter.hasNext()) {
 	    SolucaoPossivel current = iter.next();
@@ -160,8 +174,8 @@ class Main {
 	return null;
     }
 
-    private static Queue<SolucaoPossivel> geraSucessores(SolucaoPossivel solucaoPossivel) {
-	Queue<SolucaoPossivel> sucessores = new PriorityQueue<>();
+    private static ArrayList<SolucaoPossivel> geraSucessores(SolucaoPossivel solucaoPossivel) {
+	ArrayList<SolucaoPossivel> sucessores = new ArrayList<SolucaoPossivel>();
 	for (int i = 0; i < 4; i++) {
 	    for (int j = 0; j < 4; j++) {
 		if (solucaoPossivel.getMatrizResolucao()[i][j] == 0) {
@@ -169,7 +183,8 @@ class Main {
 			SolucaoPossivel up = new SolucaoPossivel();
 			up.setPassos((short) (solucaoPossivel.getPassos() + 1));
 			for (int k = 0; k < 4; k++) {
-			    System.arraycopy(solucaoPossivel.getMatrizResolucao()[k], 0, up.getMatrizResolucao()[k], 0, 4);
+			    System.arraycopy(solucaoPossivel.getMatrizResolucao()[k], 0, up.getMatrizResolucao()[k], 0,
+				    4);
 			}
 
 			short aux = up.getMatrizResolucao()[i][j];
@@ -183,7 +198,8 @@ class Main {
 			SolucaoPossivel down = new SolucaoPossivel();
 			down.setPassos((short) (solucaoPossivel.getPassos() + 1));
 			for (int k = 0; k < 4; k++) {
-			    System.arraycopy(solucaoPossivel.getMatrizResolucao()[k], 0, down.getMatrizResolucao()[k], 0, 4);
+			    System.arraycopy(solucaoPossivel.getMatrizResolucao()[k], 0, down.getMatrizResolucao()[k],
+				    0, 4);
 			}
 
 			short aux = down.getMatrizResolucao()[i][j];
@@ -196,7 +212,8 @@ class Main {
 			SolucaoPossivel left = new SolucaoPossivel();
 			left.setPassos((short) (solucaoPossivel.getPassos() + 1));
 			for (int k = 0; k < 4; k++) {
-			    System.arraycopy(solucaoPossivel.getMatrizResolucao()[k], 0, left.getMatrizResolucao()[k], 0, 4);
+			    System.arraycopy(solucaoPossivel.getMatrizResolucao()[k], 0, left.getMatrizResolucao()[k],
+				    0, 4);
 			}
 
 			short aux = left.getMatrizResolucao()[i][j];
@@ -209,7 +226,8 @@ class Main {
 			SolucaoPossivel right = new SolucaoPossivel();
 			right.setPassos((short) (solucaoPossivel.getPassos() + 1));
 			for (int k = 0; k < 4; k++) {
-			    System.arraycopy(solucaoPossivel.getMatrizResolucao()[k], 0, right.getMatrizResolucao()[k], 0, 4);
+			    System.arraycopy(solucaoPossivel.getMatrizResolucao()[k], 0, right.getMatrizResolucao()[k],
+				    0, 4);
 			}
 
 			short aux = right.getMatrizResolucao()[i][j];
@@ -241,11 +259,13 @@ class Main {
 		for (short j = 0; j < 4; j++) {
 		    if (j == 3) {
 			if (i != 3) {
-			    if (solucaoPossivel.getMatrizResolucao()[0][i + 1] != solucaoPossivel.getMatrizResolucao()[j][i] + 1
+			    if (solucaoPossivel.getMatrizResolucao()[0][i
+				    + 1] != solucaoPossivel.getMatrizResolucao()[j][i] + 1
 				    && solucaoPossivel.getMatrizResolucao()[j][i] != 0)
 				naPosicaoErrada++;
 			}
-		    } else if (solucaoPossivel.getMatrizResolucao()[j + 1][i] != solucaoPossivel.getMatrizResolucao()[j][i] + 1
+		    } else if (solucaoPossivel.getMatrizResolucao()[j
+			    + 1][i] != solucaoPossivel.getMatrizResolucao()[j][i] + 1
 			    && solucaoPossivel.getMatrizResolucao()[j][i] != 0) {
 			naPosicaoErrada++;
 		    }
@@ -265,12 +285,14 @@ class Main {
 	    }
 	    return naPosicaoErrada;
 	case 4: // caso heuristica 4
-
-	    return (int) (0.2D * calculaHlinha(solucaoPossivel, (short) 1) + 0.1D * calculaHlinha(solucaoPossivel, (short) 2)
+	    return (int) (0.2D * calculaHlinha(solucaoPossivel, (short) 1)
+		    + 0.1D * calculaHlinha(solucaoPossivel, (short) 2)
 		    + 0.8D * calculaHlinha(solucaoPossivel, (short) 3));
 	case 5: // caso heuristica 5
 	    return Math.max(calculaHlinha(solucaoPossivel, (short) 1),
 		    Math.max(calculaHlinha(solucaoPossivel, (short) 2), calculaHlinha(solucaoPossivel, (short) 3)));
+	case 6: // caso heuristica 6
+	    return Math.max(calculaHlinha(solucaoPossivel, (short) 1), calculaHlinha(solucaoPossivel, (short) 3));
 	default:
 	    return Integer.MAX_VALUE;
 	}
