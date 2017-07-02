@@ -1,3 +1,4 @@
+import java.io.FileNotFoundException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,10 +65,30 @@ class Main {
 	    String key = "";
 	    for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
-		    key += String.valueOf(matrizResolucao[i][j]);
+		    key += convertePraChar(matrizResolucao[i][j]);
 		}
 	    }
 	    this.hash = key;
+	}
+
+	private String convertePraChar(short s) {
+	    if (s < 10)
+		return String.valueOf(s);
+	    switch (s) {
+	    case 10:
+		return "A";
+	    case 11:
+		return "B";
+	    case 12:
+		return "C";
+	    case 13:
+		return "D";
+	    case 14:
+		return "E";
+	    case 15:
+		return "F";
+	    }
+	    return String.valueOf(s);
 	}
 
 	public String getHash() {
@@ -96,10 +117,12 @@ class Main {
 	    { 4, 8, 12, 0 } };
     private static TreeSet<SolucaoPossivel> estadosAbertos = new TreeSet<SolucaoPossivel>();
     private static HashMap<String, SolucaoPossivel> estadosFechados = new HashMap<String, SolucaoPossivel>();
-    private final static short HEURISTICA = 3;
-    private static final String HASH_SOLUCAO = "1591326101437111548120";
+    private final static short HEURISTICA = 1;
+    private static final String HASH_SOLUCAO = "159D26AE37BF48C0";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
+	// Scanner scan = new Scanner(new
+	// FileReader(Main.class.getResource("r1.in").getPath()));
 	Scanner scan = new Scanner(System.in);
 
 	long start = System.currentTimeMillis();
@@ -121,13 +144,13 @@ class Main {
 	    e.printStackTrace();
 	}
 
-	 //System.out.println(aEstrela());
-
-	 System.out.println("Passos: " + aEstrela());
-	 System.out.println("Millisegundos: " + (System.currentTimeMillis() -
-	 start));
-	 System.out.println("Memoria Usada: "
-		+ new DecimalFormat("#.##").format(((double) (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1048576)) + "Mb");
+	// System.out.println(aEstrela());
+	System.out.println("Passos: " + aEstrela());
+	System.out.println("Millisegundos: " + (System.currentTimeMillis() - start));
+	System.out.println("Memoria Usada: "
+		+ new DecimalFormat("#.##").format(
+			((double) (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1048576))
+		+ "Mb");
 
     }
 
