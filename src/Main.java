@@ -1,5 +1,3 @@
-import java.io.FileNotFoundException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -117,15 +115,13 @@ class Main {
 	    { 4, 8, 12, 0 } };
     private static TreeSet<SolucaoPossivel> estadosAbertos = new TreeSet<SolucaoPossivel>();
     private static HashMap<String, SolucaoPossivel> estadosFechados = new HashMap<String, SolucaoPossivel>();
-    private final static short HEURISTICA = 1;
+    private final static short HEURISTICA = 3;
     private static final String HASH_SOLUCAO = "159D26AE37BF48C0";
 
-    public static void main(String[] args) throws FileNotFoundException {
-	// Scanner scan = new Scanner(new
-	// FileReader(Main.class.getResource("r1.in").getPath()));
+    public static void main(String[] args) {
 	Scanner scan = new Scanner(System.in);
 
-	long start = System.currentTimeMillis();
+	// long start = System.currentTimeMillis();
 
 	try {
 	    SolucaoPossivel solucaoPossivel = new SolucaoPossivel();
@@ -144,13 +140,15 @@ class Main {
 	    e.printStackTrace();
 	}
 
-	// System.out.println(aEstrela());
-	System.out.println("Passos: " + aEstrela());
-	System.out.println("Millisegundos: " + (System.currentTimeMillis() - start));
-	System.out.println("Memoria Usada: "
-		+ new DecimalFormat("#.##").format(
-			((double) (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1048576))
-		+ "Mb");
+	System.out.println(aEstrela());
+	// System.out.println("Passos: " + aEstrela());
+	// System.out.println("Millisegundos: " + (System.currentTimeMillis() -
+	// start));
+	// System.out.println("Memoria Usada: "
+	// + new DecimalFormat("#.##").format(
+	// ((double) (Runtime.getRuntime().totalMemory() -
+	// Runtime.getRuntime().freeMemory()) / 1048576))
+	// + "Mb");
 
     }
 
@@ -310,25 +308,24 @@ class Main {
 	    return naPosicaoErrada;
 	case 3: // caso heuristica 3
 	    naPosicaoErrada = 0;
-	    for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-		    double valor = solucaoPossivel.getMatrizResolucao()[i][j];
-		    if (valor != 0 && valor != SOLUCAO_FINAL[i][j]) {
-			naPosicaoErrada += Math.abs(i - (short) Math.abs((4 * (valor / 4 - Math.floor(valor / 4)) - 1)))
-				+ Math.abs(j - (short) (valor / 4.1));
+	    for (int x = 0; x < 4; x++) {
+		for (int y = 0; y < 4; y++) {
+		    short pos = solucaoPossivel.getMatrizResolucao()[x][y];
+		    if (pos == 0 || solucaoPossivel.getMatrizResolucao()[x][y] == SOLUCAO_FINAL[x][y]) {
+			continue;
 		    }
+		    naPosicaoErrada += (short) (Math.abs((short) (Math.floor((pos - 1) % 4)) - x)
+			    + Math.abs((short) Math.floor(pos / 4.1) - y));
 		}
 	    }
 	    return naPosicaoErrada;
 	case 4: // caso heuristica 4
-	    return (int) (0.2D * calculaHlinha(solucaoPossivel, (short) 1)
-		    + 0.1D * calculaHlinha(solucaoPossivel, (short) 2)
+	    return (int) (0.17D * calculaHlinha(solucaoPossivel, (short) 1)
+		    + 0.03D * calculaHlinha(solucaoPossivel, (short) 2)
 		    + 0.8D * calculaHlinha(solucaoPossivel, (short) 3));
 	case 5: // caso heuristica 5
 	    return Math.max(calculaHlinha(solucaoPossivel, (short) 1),
 		    Math.max(calculaHlinha(solucaoPossivel, (short) 2), calculaHlinha(solucaoPossivel, (short) 3)));
-	case 6: // caso heuristica 6
-	    return Math.max(calculaHlinha(solucaoPossivel, (short) 1), calculaHlinha(solucaoPossivel, (short) 3));
 	default:
 	    return Integer.MAX_VALUE;
 	}
